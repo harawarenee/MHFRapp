@@ -1,11 +1,14 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Location, Owner } from "../types";
+import { useState } from "react";
+import Dropdown from "./DropDown";
 
 interface Props {
   onSubmit: (data: AddFacilityData) => void;
-  options: { id: string; name: string }[];
-  onSelect: (id: string) => void;
+  locations: Location[];
+  owners: Owner[];
 }
 
 const schema = z.object({
@@ -13,7 +16,9 @@ const schema = z.object({
 });
 type AddFacilityData = z.infer<typeof schema>;
 
-const AddFacility = ({ onSubmit, options, onSelect }: Props) => {
+const AddFacility = ({ onSubmit, locations, owners }: Props) => {
+  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [selectedOwner, setSelectedOwner] = useState<string>("");
   const {
     register,
     handleSubmit,
@@ -40,14 +45,22 @@ const AddFacility = ({ onSubmit, options, onSelect }: Props) => {
             <p className="text-danger">{errors.facility_name.message}</p>
           )}
         </div>
-        <select onChange={(e) => onSelect(e.target.value)}>
-          <option value="">Select an option</option>
-          {options.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.name}
-            </option>
-          ))}
-        </select>
+        <div>
+          <Dropdown
+            options={locations.map((loc) => ({
+              id: loc.id,
+              name: loc.district_name,
+            }))}
+            onSelect={setSelectedLocation}
+          />
+          <Dropdown
+            options={owners.map((owner) => ({
+              id: owner.id,
+              name: owner.facility_owner,
+            }))}
+            onSelect={setSelectedOwner}
+          />
+        </div>
 
         <button className="btn-btn-Primary">Add Facility</button>
       </form>

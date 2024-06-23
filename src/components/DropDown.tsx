@@ -1,4 +1,3 @@
-// src/components/Dropdown.tsx
 import React from "react";
 
 interface DropdownProps {

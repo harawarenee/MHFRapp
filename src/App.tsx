@@ -8,7 +8,6 @@ import {
   fetchOwners,
   fetchfacilities,
 } from "./services/api-clients";
-import Dropdown from "./components/DropDown";
 
 function App() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -32,32 +31,29 @@ function App() {
       (!selectedLocation || facility.district_id === selectedLocation) &&
       (!selectedOwner || facility.facility_owner_id === selectedOwner)
   );
+  const handleSubmit = () => {
+    console.log("submit");
+  };
+  const handleDelete = (id: number) => {
+    console.log("delete");
+  };
 
   return (
     <>
       <div>
-        <h1>Properties</h1>
-        <Dropdown
-          options={locations.map((loc) => ({
-            id: loc.id,
-            name: loc.district_name,
-          }))}
-          onSelect={setSelectedLocation}
-        />
-        <Dropdown
-          options={owners.map((owner) => ({
-            id: owner.id,
-            name: owner.facility_owner,
-          }))}
-          onSelect={setSelectedOwner}
+        <h1></h1>
+        <AddFacility
+          locations={locations}
+          owners={owners}
+          onSubmit={handleSubmit}
         />
       </div>
-
-      <ul>
-        {filteredfacilitied.map((facility) => (
-          <li key={facility.id}>{facility.facility_name}</li>
-        ))}
-      </ul>
+      <div>
+        <FacilitiesList
+          Facilities={filteredfacilitied}
+          onDelete={handleDelete}
+        />
+      </div>
     </>
   );
 }
