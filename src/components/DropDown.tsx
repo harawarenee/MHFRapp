@@ -1,13 +1,17 @@
 import React from "react";
+import Form from "react-bootstrap/Form";
 
 interface DropdownProps {
   options: { id: string; name: string }[];
   onSelect: (id: string) => void;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ options, onSelect }) => {
+const DropdownMenu: React.FC<DropdownProps> = ({ options, onSelect }) => {
   return (
-    <select onChange={(e) => onSelect(e.target.value)}>
+    <select
+      className="form-select mt-3"
+      onChange={(e) => onSelect(e.target.value)}
+    >
       <option value="">Select an option</option>
       {options.map((option) => (
         <option key={option.id} value={option.id}>
@@ -18,4 +22,4 @@ const Dropdown: React.FC<DropdownProps> = ({ options, onSelect }) => {
   );
 };
 
-export default Dropdown;
+export default DropdownMenu;
