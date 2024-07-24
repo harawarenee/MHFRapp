@@ -9,6 +9,7 @@ export interface Owner {
 }
 
 export interface Facility {
+  facility_code: string;
   id: number;
   district_id: string;
   facility_owner_id: string;

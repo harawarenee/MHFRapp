@@ -1,13 +1,12 @@
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Location, Owner } from "../types";
-import { useState } from "react";
+import { Facility, Location, Owner } from "../types";
 import DropdownMenu from "./DropDown";
-import Form from "react-bootstrap/Form";
 
 interface Props {
-  onSubmit: (data: AddFacilityData) => void;
+  onSubmit: (data: Facility) => void;
   locations: Location[];
   owners: Owner[];
   onCheckExists: (facility_name: string) => boolean;
@@ -18,38 +17,56 @@ const schema = z.object({
 });
 type AddFacilityData = z.infer<typeof schema>;
 
-//const AddFacility = ({ onSubmit, locations, owners, }: Props) => {
-/*const [facilityName, setFacilityName] = useState('');
-  const [districtId, setDistrictId] = useState('');
-  const [ownerId, setOwnerId] = useState('');
+const AddFacility: React.FC<Props> = ({
+  onSubmit,
+  locations,
+  owners,
+  onCheckExists,
+}) => {
+  const [facilityName, setFacilityName] = useState("");
+  const [districtId, setDistrictId] = useState<string>("");
+  const [ownerId, setOwnerId] = useState<string>("");
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AddFacilityData>({ resolver: zodResolver(schema) });*/
-const AddFacility = ({ onSubmit, locations, owners, onCheckExists }: Props) => {
-  const [facilityName, setFacilityName] = useState("");
-  const [districtId, setDistrictId] = useState("");
-  const [ownerId, setOwnerId] = useState("");
-  const [location, setSelectedLocation] = useState<Location[]>([]);
+  } = useForm<AddFacilityData>({ resolver: zodResolver(schema) });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleSelectLocation = (id: string) => {
+    setDistrictId(id);
+  };
+
+  const handleSelectOwner = (id: string) => {
+    setOwnerId(id);
+  };
+
+  const onSubmitForm = (data: AddFacilityData) => {
+    const facilityName = data.facility_name;
 
     if (onCheckExists(facilityName)) {
       alert("Facility already exists!");
       return;
     }
-    const facility_code = `${districtId
-      .slice(0, 2)
-      .toUpperCase()}${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+
+    const districtCode =
+      locations
+        .find((loc) => loc.id === districtId)
+        ?.district_name.slice(0, 2)
+        .toUpperCase() || "";
+    const facility_code = `${districtCode}${Math.random()
+      .toString(36)
+      .slice(2, 10)
+      .toUpperCase()}`;
+    const id = Math.floor(Math.random() * 1000000000);
 
     const newFacility: Facility = {
+      id,
       facility_code,
       facility_name: facilityName,
       district_id: districtId,
-      owner_id: ownerId,
+      facility_owner_id: ownerId,
+      isArchived: false,
     };
 
     onSubmit(newFacility);
@@ -57,49 +74,53 @@ const AddFacility = ({ onSubmit, locations, owners, onCheckExists }: Props) => {
     setDistrictId("");
     setOwnerId("");
   };
-  const {
-    register,
-    formState: { errors },
-  } = useForm<AddFacilityData>({ resolver: zodResolver(schema) });
-  return (
-    <>
-      <form>
-        <div className="mb-3">
-          <label htmlFor="facility-name" className="form-label">
-            faciliy name
-          </label>
-          <input
-            {...register("facility_name")}
-            id="facility_name"
-            type="text"
-            className="form-control"
-          />
 
-          {errors.facility_name && (
-            <p className="text-danger">{errors.facility_name.message}</p>
-          )}
-        </div>
-        <div>
-          <DropdownMenu
-            options={locations.map((loc) => ({
-              id: loc.id,
-              name: loc.district_name,
-            }))}
-            onSelect={setSelectedLocation}
-          />
-        </div>
+  return (
+    <form onSubmit={handleSubmit(onSubmitForm)}>
+      <div className="mb-3">
+        <label htmlFor="facility-name" className="form-label">
+          Facility Name
+        </label>
+        <input
+          {...register("facility_name")}
+          id="facility_name"
+          type="text"
+          className="form-control"
+          value={facilityName}
+          onChange={(e) => setFacilityName(e.target.value)}
+        />
+        {errors.facility_name && (
+          <p className="text-danger">{errors.facility_name.message}</p>
+        )}
+      </div>
+      <div className="mb-3">
+        <label htmlFor="district" className="form-label">
+          District
+        </label>
+        <DropdownMenu
+          options={locations.map((loc) => ({
+            id: loc.id,
+            name: loc.district_name,
+          }))}
+          onSelect={handleSelectLocation}
+        />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="owner" className="form-label">
+          Owner
+        </label>
         <DropdownMenu
           options={owners.map((owner) => ({
             id: owner.id,
             name: owner.facility_owner,
           }))}
-          onSelect={setSelectedOwner}
+          onSelect={handleSelectOwner}
         />
-        <p>
-          <button className="btn-primary">Add Facility</button>
-        </p>
-      </form>
-    </>
+      </div>
+      <button type="submit" className="btn btn-primary">
+        Add Facility
+      </button>
+    </form>
   );
 };
 

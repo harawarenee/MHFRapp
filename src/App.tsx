@@ -1,13 +1,14 @@
 import React from "react";
 import FacilitiesList from "./components/FacilitiesList";
-import { useState, useEffect } from "react";
 import AddFacility from "./components/AddFacility";
+import { useState, useEffect } from "react";
 import { Location, Owner, Facility } from "./types";
 import {
   fetchLocations,
   fetchOwners,
   fetchfacilities,
 } from "./services/api-clients";
+import SearchFilter from "./components/SearchFilter";
 
 function App() {
   /*const [locations, setLocations] = useState<Location[]>([]);
@@ -41,6 +42,7 @@ function App() {
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [location, setDistricts] = useState<Location[]>([]);
   const [owners, setOwners] = useState<Owner[]>([]);
+  const [Archive, setArchive] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -63,16 +65,36 @@ function App() {
   const handleDelete = (id: number) => {
     console.log("delete");
   };
+  const handleArchive = (id: number) => {
+    setFacilities(
+      facilities.map((facility) =>
+        facility.id === id ? { ...facility, setArchive: true } : facility
+      )
+    );
+  };
+
+  const checkIfFacilityExists = (facilityName: string) => {
+    return facilities.some(
+      (facility) => facility.facility_name === facilityName
+    );
+  };
 
   return (
     <>
       <div>
         <h1></h1>
+        <SearchFilter></SearchFilter>
         <AddFacility
+          onCheckExists={checkIfFacilityExists}
           locations={location}
           owners={owners}
           onSubmit={handleSubmit}
         />
+        <FacilitiesList
+          onArchive={handleArchive}
+          Facilities={facilities}
+          onDelete={handleDelete}
+        ></FacilitiesList>
       </div>
     </>
   );
